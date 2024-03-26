@@ -70,6 +70,11 @@ public class HandlerBasedCommand implements IExtendedCommand
 	{
 		return aliases;
 	}
+	@Override
+	public String[] getPermissions()
+	{
+		return permissions;
+	}
 
 	@Override
 	public void processCommand(ICommandSender var1, String[] var2)

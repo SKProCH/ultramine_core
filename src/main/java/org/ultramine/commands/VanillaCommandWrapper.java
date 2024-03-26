@@ -39,7 +39,13 @@ public class VanillaCommandWrapper implements IExtendedCommand
 	{
 		return wrappedCommand.getCommandAliases();
 	}
-
+	
+	@Override
+	public String[] getPermissions()
+	{
+		return new String[] { permission };
+	}
+	
 	@Override
 	public void processCommand(ICommandSender var1, String[] var2)
 	{

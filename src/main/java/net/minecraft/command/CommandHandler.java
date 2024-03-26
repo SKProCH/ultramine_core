@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ChatComponentTranslation;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -92,6 +93,12 @@ public class CommandHandler implements ICommandManager
 				ChatComponentTranslation chatcomponenttranslation2 = new ChatComponentTranslation("commands.generic.permission", new Object[0]);
 				chatcomponenttranslation2.getChatStyle().setColor(EnumChatFormatting.RED);
 				par1ICommandSender.addChatMessage(chatcomponenttranslation2);
+				for ( String perm : registry.getPermissions(s1) )
+				{
+					ChatComponentText text = new ChatComponentText( "⤷   " + perm );
+					text.getChatStyle().setColor( EnumChatFormatting.BLUE );
+					par1ICommandSender.addChatMessage( text );
+				}
 			}
 		}
 		catch (WrongUsageException wrongusageexception)

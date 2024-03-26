@@ -101,6 +101,10 @@ public class CommandRegistry
 	{
 		return commandMap.get(name);
 	}
+	public String[] getPermissions(String name)
+	{
+		return commandMap.get(name).getPermissions();
+	}
 
 	public Map<String, IExtendedCommand> getCommandMap()
 	{

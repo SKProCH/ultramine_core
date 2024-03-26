@@ -6,4 +6,5 @@ public interface IExtendedCommand extends ICommand
 {
 	public String getDescription();
 	public String getGroup();
+	public String[] getPermissions();
 }

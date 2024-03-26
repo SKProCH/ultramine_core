@@ -39,6 +39,12 @@ public class FastWarpCommand implements IExtendedCommand
 	}
 
 	@Override
+	public String[] getPermissions()
+	{
+		return new String[] { "command.fastwarp."+name };
+	}
+	
+	@Override
 	public void processCommand(ICommandSender sender, String[] args)
 	{
 		Teleporter.tpLater((EntityPlayerMP)sender, MinecraftServer.getServer().getConfigurationManager().getDataLoader().getWarp(name));
