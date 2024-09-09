@@ -46,25 +46,21 @@ import org.ultramine.server.WorldConstants;
 import org.ultramine.server.chunk.CallbackMultiChunkDependentTask;
 import org.ultramine.server.chunk.ChunkBindState;
 import org.ultramine.server.chunk.ChunkGC;
-import org.ultramine.server.chunk.ChunkGenerationQueue;
 import org.ultramine.server.chunk.ChunkHash;
 import org.ultramine.server.chunk.ChunkMap;
 import org.ultramine.server.chunk.IChunkLoadCallback;
-import org.ultramine.server.internal.UMHooks;
 import org.ultramine.server.util.VanillaChunkHashMap;
-import org.ultramine.server.util.VanillaChunkHashSet;
 
 public class ChunkProviderServer implements IChunkProvider
 {
 	private static final Logger logger = LogManager.getLogger();
-	public IntSet unloadQueue = HashIntSets.newMutableSet();
-	public Set<Long> chunksToUnload = new VanillaChunkHashSet(unloadQueue); //mods compatibility
+	public IntSet chunksToUnload = HashIntSets.newMutableSet();
 	private Chunk defaultEmptyChunk;
 	public IChunkProvider currentChunkProvider;
 	public IChunkLoader currentChunkLoader;
 	public boolean loadChunkOnProvideRequest = true;
 	public ChunkMap chunkMap = new ChunkMap();
-	public LongHashMap loadedChunkHashMap = new VanillaChunkHashMap(chunkMap); //mods compatibility
+	public VanillaChunkHashMap loadedChunkHashMap = new VanillaChunkHashMap(chunkMap); //mods compatibility
 	public WorldServer worldObj;
 	public List loadedChunks = new AbstractList() //mods compatibility
 	{
@@ -122,7 +118,7 @@ public class ChunkProviderServer implements IChunkProvider
 		{
 			chunk.unbind();
 			if(chunk.canUnload())
-				unloadQueue.add(ChunkHash.chunkToKey(par1, par2));
+				chunksToUnload.add(ChunkHash.chunkToKey(par1, par2));
 		}
 	}
 
@@ -144,7 +140,7 @@ public class ChunkProviderServer implements IChunkProvider
 
 	public Chunk loadChunk(int par1, int par2, Runnable runnable)
 	{
-		this.unloadQueue.removeInt(ChunkHash.chunkToKey(par1, par2));
+		this.chunksToUnload.removeInt(ChunkHash.chunkToKey(par1, par2));
 		Chunk chunk = chunkMap.get(par1, par2);
 		AnvilChunkLoader loader = null;
 
@@ -188,7 +184,7 @@ public class ChunkProviderServer implements IChunkProvider
 	public Chunk originalLoadChunk(int par1, int par2)
 	{
 		int k = ChunkHash.chunkToKey(par1, par2);
-		this.unloadQueue.removeInt(k);
+		this.chunksToUnload.removeInt(k);
 		Chunk chunk = (Chunk)this.chunkMap.get(par1, par2);
 
 		if (chunk == null)
@@ -323,7 +319,6 @@ public class ChunkProviderServer implements IChunkProvider
 				if(!worldObj.getConfig().generation.disableModGeneration)
 					GameRegistry.generateWorld(par2, par3, worldObj, currentChunkProvider, par1IChunkProvider);
 				chunk.setChunkModified();
-				UMHooks.onChunkPopulated(chunk);
 				isGenerating = lastIsGenerating;
 			}
 		}
@@ -397,7 +392,7 @@ public class ChunkProviderServer implements IChunkProvider
 			Set<ChunkCoordIntPair> persistentChunks = worldObj.getPersistentChunks().keySet();
 			int savequeueSize = ((AnvilChunkLoader)currentChunkLoader).getSaveQueueSize();
 			
-			for(IntCursor it = unloadQueue.cursor(); it.moveNext() && savequeueSize < MAX_SAVE_QUEUE_SIZE;)
+			for(IntCursor it = chunksToUnload.cursor(); it.moveNext() && savequeueSize < MAX_SAVE_QUEUE_SIZE;)
 			{
 				int hash = it.elem();
 				Chunk chunk = chunkMap.get(hash);
@@ -417,7 +412,6 @@ public class ChunkProviderServer implements IChunkProvider
 						}
 						this.safeSaveExtraChunkData(chunk);
 						this.chunkMap.remove(hash);
-						chunk.free();
 					}
 				}
 				
@@ -440,7 +434,7 @@ public class ChunkProviderServer implements IChunkProvider
 
 	public String makeString()
 	{
-		return "ServerChunkCache: " + this.chunkMap.size() + " Drop: " + this.unloadQueue.size();
+		return "ServerChunkCache: " + this.chunkMap.size() + " Drop: " + this.chunksToUnload.size();
 	}
 
 	public List getPossibleCreatures(EnumCreatureType par1EnumCreatureType, int par2, int par3, int par4)
@@ -482,7 +476,7 @@ public class ChunkProviderServer implements IChunkProvider
 	{
 		return chunkGC;
 	}
-	
+
 	public boolean loadAsync(int x, int z, boolean generateOnRequest, IChunkLoadCallback callback)
 	{
 		Chunk chunk = chunkMap.get(x, z);
@@ -505,11 +499,22 @@ public class ChunkProviderServer implements IChunkProvider
 
 		return true;
 	}
-
+	
 	public void loadAsync(int x, int z, IChunkLoadCallback callback)
 	{
-		if(!loadAsync(x, z, false, callback))
-			ChunkGenerationQueue.instance().queueChunkGeneration(this, x, z, callback);
+		Chunk chunk = chunkMap.get(x, z);
+		if(chunk != null)
+		{
+			callback.onChunkLoaded(chunk);
+		}
+		else if(((AnvilChunkLoader)currentChunkLoader).chunkExists(worldObj, x, z))
+		{
+			ChunkIOExecutor.queueChunkLoad(this.worldObj, (AnvilChunkLoader)currentChunkLoader, this, x, z, callback);
+		}
+		else
+		{
+			callback.onChunkLoaded(originalLoadChunk(x, z));
+		}
 	}
 	
 	public void loadAsync(int x, int z)
@@ -591,7 +596,7 @@ public class ChunkProviderServer implements IChunkProvider
 			for(IntObjCursor<Chunk> it = chunkMap.iterator(); it.moveNext();)
 			{
 				int key = it.key();
-				if(it.value().needsSaving(false) && !unloadQueue.contains(key))
+				if(it.value().needsSaving(false) && !chunksToUnload.contains(key))
 					possibleSaves.add(key);
 			}
 			
@@ -607,7 +612,7 @@ public class ChunkProviderServer implements IChunkProvider
 				int key = it.elem();
 				it.remove();
 				Chunk chunk = chunkMap.get(key);
-				if(chunk != null && chunk.needsSaving(false) && !unloadQueue.contains(key))
+				if(chunk != null && chunk.needsSaving(false) && !chunksToUnload.contains(key))
 				{
 					safeSaveChunk(chunk);
 					chunk.isModified = false;
@@ -655,22 +660,13 @@ public class ChunkProviderServer implements IChunkProvider
 				safeSaveChunk(chunk);
 			else
 				MinecraftForge.EVENT_BUS.post(new ChunkDataEvent.Save(chunk, new NBTTagCompound())); //CodeChickenLib memory leak fix
-			chunk.free();
 		}
 		
 		chunkMap.clear();
-		unloadQueue.clear();
+		chunksToUnload.clear();
 		possibleSaves.clear();
 		if(!save)
 			((AnvilChunkLoader)currentChunkLoader).unsafeRemoveAll();
-	}
-	
-	public void free()
-	{
-		for(Chunk chunk : chunkMap.valueCollection())
-			chunk.free();
-		chunkMap.clear();
-		setWorldUnloaded();
 	}
 	
 	public boolean isGenerating()

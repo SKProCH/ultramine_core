@@ -1187,18 +1187,16 @@ public class Chunk implements IChunkDependency
 			{
 				if (this.storageArrays[l] == null)
 				{
-					this.storageArrays[l] = new ExtendedBlockStorage(l << 4, flag1, false);
-					if(!flag1)
-						this.storageArrays[l].getSlot().clearSkylight();
+					this.storageArrays[l] = new ExtendedBlockStorage(l << 4, flag1);
 				}
 
-				this.storageArrays[l].getSlot().setLSB(p_76607_1_, k);
-				k += 4096;
+				byte[] abyte1 = this.storageArrays[l].getBlockLSBArray();
+				System.arraycopy(p_76607_1_, k, abyte1, 0, abyte1.length);
+				k += abyte1.length;
 			}
 			else if (p_76607_4_ && this.storageArrays[l] != null)
 			{
 				this.storageArrays[l] = null;
-				this.storageArrays[l].free();
 			}
 		}
 
@@ -1208,8 +1206,9 @@ public class Chunk implements IChunkDependency
 		{
 			if ((p_76607_2_ & 1 << l) != 0 && this.storageArrays[l] != null)
 			{
-				this.storageArrays[l].getSlot().setBlockMetadata(p_76607_1_, k);
-				k += 2048;
+				nibblearray = this.storageArrays[l].getMetadataArray();
+				System.arraycopy(p_76607_1_, k, nibblearray.data, 0, nibblearray.data.length);
+				k += nibblearray.data.length;
 			}
 		}
 
@@ -1217,8 +1216,9 @@ public class Chunk implements IChunkDependency
 		{
 			if ((p_76607_2_ & 1 << l) != 0 && this.storageArrays[l] != null)
 			{
-				this.storageArrays[l].getSlot().setBlocklight(p_76607_1_, k);
-				k += 2048;
+				nibblearray = this.storageArrays[l].getBlocklightArray();
+				System.arraycopy(p_76607_1_, k, nibblearray.data, 0, nibblearray.data.length);
+				k += nibblearray.data.length;
 			}
 		}
 
@@ -1228,8 +1228,9 @@ public class Chunk implements IChunkDependency
 			{
 				if ((p_76607_2_ & 1 << l) != 0 && this.storageArrays[l] != null)
 				{
-					this.storageArrays[l].getSlot().setSkylight(p_76607_1_, k);
-					k += 2048;
+					nibblearray = this.storageArrays[l].getSkylightArray();
+					System.arraycopy(p_76607_1_, k, nibblearray.data, 0, nibblearray.data.length);
+					k += nibblearray.data.length;
 				}
 			}
 		}
@@ -1244,11 +1245,18 @@ public class Chunk implements IChunkDependency
 				}
 				else
 				{
-					this.storageArrays[l].getSlot().setMSB(p_76607_1_, k);
-					k += 2048;
+					nibblearray = this.storageArrays[l].getBlockMSBArray();
+
+					if (nibblearray == null)
+					{
+						nibblearray = this.storageArrays[l].createBlockMSBArray();
+					}
+
+					System.arraycopy(p_76607_1_, k, nibblearray.data, 0, nibblearray.data.length);
+					k += nibblearray.data.length;
 				}
 			}
-			else if (p_76607_4_ && this.storageArrays[l] != null/* && this.storageArrays[l].getBlockMSBArray() != null*/)
+			else if (p_76607_4_ && this.storageArrays[l] != null && this.storageArrays[l].getBlockMSBArray() != null)
 			{
 				this.storageArrays[l].clearMSBArray();
 			}
@@ -1582,7 +1590,7 @@ public class Chunk implements IChunkDependency
 			pendingUpdatesQueue = null;
 		}
 	}
-	
+
 	private void convertTileEntityMap()
 	{
 		fastTileEntityMap.clear();
@@ -1740,7 +1748,7 @@ public class Chunk implements IChunkDependency
 		isModified = true;
 		if(e.isEntityLiving() && !e.isEntityPlayerMP())
 			entityLivingCount++;
-		
+
 		switch(e.getEntityType())
 		{
 		case MONSTER:	++entityMonsterCount; break;
@@ -1758,7 +1766,7 @@ public class Chunk implements IChunkDependency
 		isModified = true;
 		if(e.isEntityLiving() && !e.isEntityPlayerMP())
 			entityLivingCount--;
-		
+
 		switch(e.getEntityType())
 		{
 		case MONSTER:	--entityMonsterCount; break;
@@ -1817,19 +1825,9 @@ public class Chunk implements IChunkDependency
 		default: 		return 0;
 		}
 	}
-	
+
 	public int getEntityCountOfSameType(Entity e)
 	{
 		return getEntityCountByType(e.getEntityType());
-	}
-	
-	public void free()
-	{
-		for(ExtendedBlockStorage exbs : storageArrays)
-		{
-			if(exbs != null)
-				exbs.free();
-		}
-		releasePendingUpdatesSets();
 	}
 }

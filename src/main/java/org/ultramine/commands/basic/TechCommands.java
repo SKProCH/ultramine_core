@@ -1,14 +1,11 @@
 package org.ultramine.commands.basic;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
-import net.minecraft.command.CommandException;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.item.EntityItem;
@@ -21,6 +18,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.MathHelper;
+import static net.minecraft.util.EnumChatFormatting.*;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 
@@ -35,18 +33,12 @@ import org.ultramine.server.Teleporter;
 import org.ultramine.server.UltramineServerConfig;
 import org.ultramine.server.UltramineServerModContainer;
 import org.ultramine.server.BackupManager.BackupDescriptor;
-import org.ultramine.server.WorldsConfig.WorldConfig;
 import org.ultramine.server.WorldsConfig.WorldConfig.Border;
-import org.ultramine.server.WorldsConfig.WorldConfig.ImportFrom;
 import org.ultramine.server.chunk.ChunkProfiler;
 import org.ultramine.server.chunk.IChunkLoadCallback;
-import org.ultramine.server.chunk.OffHeapChunkStorage;
 import org.ultramine.server.util.BasicTypeParser;
-import org.ultramine.server.util.GlobalExecutors;
 import org.ultramine.server.world.MultiWorld;
 import org.ultramine.server.world.WorldDescriptor;
-import org.ultramine.server.world.WorldState;
-import org.ultramine.server.world.imprt.ZipFileChunkLoader;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
@@ -54,9 +46,6 @@ import cpw.mods.fml.common.functions.GenericIterableFactory;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
-import static net.minecraft.util.EnumChatFormatting.*;
-import static org.ultramine.server.world.WorldState.*;
 
 public class TechCommands
 {
@@ -89,14 +78,14 @@ public class TechCommands
 	{
 		double tps = Math.round(ctx.getServer().currentTPS*10)/10d;
 		double downtime = ctx.getServer().currentWait/1000/1000d;
-		double peakdowntime = ctx.getServer().peakWait /1000/1000d;
+		double pickdowntime = ctx.getServer().peakWait/1000/1000d;
 		int load = (int)Math.round((50-downtime)/50*100);
-		int peakload = (int)Math.round((50-peakdowntime)/50*100);
+		int pickload = (int)Math.round((50-pickdowntime)/50*100);
 		int uptime = (int)((System.currentTimeMillis() - ctx.getServer().startTime)/1000);
-		ChatComponentText peakloadcomp = new ChatComponentText(Integer.toString(peakload).concat("%"));
-		peakloadcomp.getChatStyle().setColor(peakload >= 200 ? RED : DARK_GREEN);
+		ChatComponentText pickloadcomp = new ChatComponentText(Integer.toString(pickload).concat("%"));
+		pickloadcomp.getChatStyle().setColor(pickload >= 200 ? RED : DARK_GREEN);
 		ctx.sendMessage(DARK_GREEN, "command.uptime.msg.up", String.format("%dd %dh %dm %ds", uptime/(60*60*24), uptime/(60*60)%24, uptime/60%60, uptime%60));
-		ctx.sendMessage(load > 100 ? RED : DARK_GREEN, "command.uptime.msg.load", Integer.toString(load).concat("%"), peakloadcomp);
+		ctx.sendMessage(load > 100 ? RED : DARK_GREEN, "command.uptime.msg.load", Integer.toString(load).concat("%"), pickloadcomp);
 		ctx.sendMessage(tps < 15 ? RED : DARK_GREEN, "command.uptime.msg.tps",  tps, Integer.toString((int)(tps/20*100)).concat("%"));
 	}
 	
@@ -158,9 +147,6 @@ public class TechCommands
 		ctx.sendMessage("Heap max: %sm", Runtime.getRuntime().maxMemory() >> 20);
 		ctx.sendMessage("Heap total: %sm", Runtime.getRuntime().totalMemory() >> 20);
 		ctx.sendMessage("Heap free: %sm", Runtime.getRuntime().freeMemory() >> 20);
-		ctx.sendMessage("Off-Heap chunk total: %sm", OffHeapChunkStorage.instance().getTotalMemory() >> 20);
-		ctx.sendMessage("Off-Heap chunk used: %sm", OffHeapChunkStorage.instance().getUsedMemory() >> 20);
-		ctx.sendMessage("Threads: %s", Thread.activeCount());
 	}
 	
 	@Command(
@@ -170,9 +156,7 @@ public class TechCommands
 			permissions = {"command.technical.multiworld"},
 			syntax = {
 					"[list]",
-					"[import] <%file>",
-					"[import] <%file> <%path>",
-					"[load unload hold destroy delete wipe unregister drop goto] <%world>" //No world validation
+					"[load unload hold goto destroy delete] <%world>" //No world validation
 			}
 	)
 	public static void multiworld(CommandContext ctx)
@@ -184,28 +168,8 @@ public class TechCommands
 			ctx.sendMessage("command.multiworld.list.head");
 			for(WorldDescriptor desc : mw.getAllDescs())
 			{
-				ctx.sendMessage(GOLD, "    - [%s](%s) - %s", desc.getDimension(), desc.getName(), worldStateColor(desc.getState()));
+				ctx.sendMessage(GOLD, "    - [%s](%s) - %s", desc.getDimension(), desc.getName(), desc.getState());
 			}
-			return;
-		}
-		else if(ctx.getAction().equals("import"))
-		{
-			String filename = ctx.get("file").asString();
-			String pathInArchive = ctx.contains("path") ? ctx.get("path").asString() : null;
-			File file = new File(ctx.getServer().getHomeDirectory(), filename);			
-			if(!file.exists())
-				throw new CommandException("command.multiworld.import.fail.nofile", filename);
-			if(file.isFile())
-				ZipFileChunkLoader.checkZipFile(file, pathInArchive);
-			int dim = mw.allocTempDim();
-			WorldDescriptor desc = mw.makeTempWorld(MultiWorld.getTempWorldName(dim)+"_"+file.getName(), dim);
-			WorldConfig config = desc.getConfig();
-			config.importFrom = new ImportFrom();
-			config.importFrom.file = filename;
-			config.importFrom.pathInArchive = pathInArchive;
-			config.generation.providerID = -10;
-			config.generation.disableModGeneration = true;
-			ctx.sendMessage("command.multiworld.import.success");
 			return;
 		}
 		
@@ -219,52 +183,21 @@ public class TechCommands
 			if(desc.getState().isLoaded())
 				ctx.failure("command.multiworld.alreadyloaded");
 			
-			ctx.sendMessage("command.multiworld.load.start");
-			handle(desc.forceLoadLater(), ctx, "command.multiworld.load.success", "command.multiworld.load.fail");
+			desc.forceLoadNow();
+			ctx.sendMessage("command.multiworld.load.success");
 		}
 		else if(ctx.getAction().equals("unload"))
 		{
 			if(!desc.getState().isLoaded())
 				ctx.failure("command.multiworld.notloaded");
 			
-			ctx.sendMessage("command.multiworld.unload.start");
-			handle(desc.unloadLater(true), ctx, "command.multiworld.unload.success", "command.multiworld.unload.fail");
+			desc.unloadNow(true);
+			ctx.sendMessage("command.multiworld.unload.success");
 		}
 		else if(ctx.getAction().equals("hold"))
 		{
-			if(desc.getState() == HELD)
-				ctx.failure("command.multiworld.heldalready");
-			ctx.sendMessage("command.multiworld.hold.start");
-			handle(desc.holdLater(true), ctx, "command.multiworld.hold.success", "command.multiworld.hold.fail");
-		}
-		else if(ctx.getAction().equals("destroy"))
-		{
-			if(!desc.getState().isLoaded())
-				ctx.failure("command.multiworld.notloaded");
-			
-			ctx.sendMessage("command.multiworld.destroy.start");
-			handle(desc.holdLater(false), ctx, "command.multiworld.destroy.success", "command.multiworld.destroy.fail");
-			
-		}
-		else if(ctx.getAction().equals("delete"))
-		{
-			ctx.sendMessage("command.multiworld.delete.start");
-			handle(desc.deleteLater(), ctx, "command.multiworld.delete.success", "command.multiworld.delete.fail");
-		}
-		else if(ctx.getAction().equals("wipe"))
-		{
-			ctx.sendMessage("command.multiworld.wipe.start");
-			handle(desc.wipeLater(), ctx, "command.multiworld.wipe.success", "command.multiworld.wipe.fail");
-		}
-		else if(ctx.getAction().equals("unregister"))
-		{
-			desc.unregister();
-			ctx.sendMessage("command.multiworld.unregister.success");
-		}
-		else if(ctx.getAction().equals("drop"))
-		{
-			desc.drop();
-			ctx.sendMessage("command.multiworld.drop.success");
+			desc.holdNow(true);
+			ctx.sendMessage("command.multiworld.hold.success");
 		}
 		else if(ctx.getAction().equals("goto"))
 		{
@@ -274,23 +207,22 @@ public class TechCommands
 			WorldServer world = desc.getWorld();
 			Teleporter.tpNow(ctx.getSenderAsPlayer(), desc.getDimension(), world.getWorldInfo().getSpawnX(), world.getWorldInfo().getSpawnY(), world.getWorldInfo().getSpawnZ());
 		}
-	}
-	
-	private static ChatComponentText worldStateColor(WorldState state)
-	{
-		ChatComponentText comp = new ChatComponentText(state.toString());
-		comp.getChatStyle().setColor(state == UNREGISTERED ? DARK_RED : state == HELD ? RED : state == AVAILABLE ? YELLOW : state == LOADED ? DARK_GREEN : WHITE);
-		return comp;
-	}
-	
-	private static void handle(CompletableFuture<Void> future, CommandContext ctx, String success, String fail)
-	{
-		future.whenCompleteAsync((v, e) -> {
-			if(e == null)
-				ctx.sendMessage(success);
-			else
-				ctx.sendMessage(RED, RED, fail, e.toString());
-		}, GlobalExecutors.nextTick());
+		else if(ctx.getAction().equals("destroy"))
+		{
+			if(!desc.getState().isLoaded())
+				ctx.failure("command.multiworld.notloaded");
+			
+			desc.destroyWorld(true);
+			desc.holdNow(true);
+			ctx.sendMessage("command.multiworld.destroy.success");
+			
+		}
+		else if(ctx.getAction().equals("delete"))
+		{
+			desc.deleteLater();
+			desc.holdLater(true);
+			ctx.sendMessage("command.multiworld.delete.success");
+		}
 	}
 
 	@Command(
@@ -507,6 +439,161 @@ public class TechCommands
 		ctx.sendMessage("command.chunkgc.success");
 	}
 	
+	private static WorldGenerator worldgen;
+	
+	@Command(
+			name = "genworld",
+			group = "technical",
+			permissions = {"command.genworld"},
+			syntax = {
+					"",
+					"[stop]",
+					"<cpt>",
+					"[radius] <radius>",
+					"[radius] <radius> <cpt>"
+			}
+	)
+	public static void genworld(CommandContext ctx)
+	{
+		if(ctx.getAction().equals("stop"))
+		{
+			FMLCommonHandler.instance().bus().unregister(worldgen);
+			ctx.sendMessage("command.genworld.stop", worldgen.genCurrent, worldgen.genTotal);
+			worldgen = null;
+			return;
+		}
+		
+		if(worldgen != null)
+			ctx.failure("command.genworld.already");
+		
+		WorldServer world = ctx.getSenderAsPlayer().getServerForPlayer();
+		int dim = world.provider.dimensionId;
+		int radius = ctx.contains("radius") ? ctx.get("radius").asInt(1) : -1;
+		int cpt = ctx.contains("cpt") ? ctx.get("cpt").asInt(1) : 20;
+		
+		int x = MathHelper.floor_double(ctx.getSenderAsPlayer().posX);
+		int z = MathHelper.floor_double(ctx.getSenderAsPlayer().posZ);
+		
+		if(radius == -1 && world.getConfig().borders.length == 0)
+			ctx.failure("command.genworld.noborder");
+		
+		worldgen = radius == -1 ? new WorldGenerator(dim, cpt) : new WorldGenerator(dim, cpt, x, z, radius);
+		FMLCommonHandler.instance().bus().register(worldgen);
+		ctx.sendMessage("command.genworld.start");
+	}
+	
+	public static class WorldGenerator
+	{
+		private final int dim;
+		private final int chunksPerTick;
+		private final boolean isBorder;
+		
+		private int borderInd = 0;
+		private int minX = Integer.MIN_VALUE;
+		private int minZ;
+		private int maxX;
+		private int maxZ;
+		
+		private int x;
+		private int z;
+		
+		private int genCurrent;
+		private int genTotal;
+		
+		public WorldGenerator(int dim, int chunksPerTick)
+		{
+			this.isBorder = true;
+			this.dim = dim;
+			this.chunksPerTick = chunksPerTick;
+		}
+		
+		public WorldGenerator(int dim, int chunksPerTick, int centX, int centZ, int radius)
+		{
+			this.isBorder = false;
+			this.dim = dim;
+			this.chunksPerTick = chunksPerTick;
+			
+			minX = (centX - radius) >> 4;
+			minZ = (centZ - radius) >> 4;
+			maxX = (centX + radius) >> 4;
+			maxZ = (centZ + radius) >> 4;
+			
+			x = minX;
+			z = minZ;
+			
+			genTotal = (Math.abs(maxX - minX) + 8)*(Math.abs(maxZ - minZ) + 8);
+		}
+		
+		@SubscribeEvent
+		public void onTick(TickEvent.ServerTickEvent e)
+		{
+			if(e.phase == TickEvent.Phase.START)
+			{
+				if(MinecraftServer.getServer().getTickCounter() % 600 == 0)
+					MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentTranslation("command.genworld.process", genCurrent, genTotal));
+				
+				if(MinecraftServer.getServer().getTickCounter() % Math.max(1,169/chunksPerTick) != 0)
+					return;
+				WorldServer world = MinecraftServer.getServer().getMultiWorld().getWorldByID(dim);
+				if(world == null)
+					return;
+				Border[] borders = world.getConfig().borders;
+				int counter = 0;
+				l1:
+				while(borderInd < (isBorder ? borders.length : 1))
+				{
+					if(minX == Integer.MIN_VALUE)
+					{
+						Border border = borders[borderInd];
+						
+						minX = (border.x - border.radius) >> 4;
+						minZ = (border.z - border.radius) >> 4;
+						maxX = (border.x + border.radius) >> 4;
+						maxZ = (border.z + border.radius) >> 4;
+						
+						x = minX;
+						z = minZ;
+						
+						genTotal = (Math.abs(maxX - minX) + 8)*(Math.abs(maxZ - minZ) + 8);
+					}
+					
+					while(x <= maxX)
+					{
+						while(z <= maxZ)
+						{
+							if(world.getBorder().isChunkInsideBorder(x, z))
+							{
+								if(++counter > Math.max(1, chunksPerTick/169)) break l1;
+								
+								world.theChunkProviderServer.loadAsyncWithRadius(x, z, 6, IChunkLoadCallback.EMPTY);
+							}
+							
+							z += 8;
+						}
+						
+						x += 8;
+						if(x <= maxX) z = minZ;
+					}
+					
+					if(x > maxX && z > maxZ)
+					{
+						borderInd++;
+						minX = Integer.MIN_VALUE;
+					}
+				}
+				
+				genCurrent += (counter-1)*81;
+				
+				if(borderInd >= (isBorder ? borders.length : 1))
+				{
+					FMLCommonHandler.instance().bus().unregister(worldgen);
+					worldgen = null;
+					MinecraftServer.getServer().getConfigurationManager().sendChatMsg(new ChatComponentTranslation("command.genworld.complete", genCurrent, genTotal));
+				}
+			}
+		}
+	}
+	
 	@Command(
 			name = "chunkdebug",
 			group = "technical",
@@ -686,28 +773,17 @@ public class TechCommands
 			name = "entitylist",
 			group = "technical",
 			permissions = {"command.technical.entitylist"},
-			syntax = {
-					"",
-					"<world>"
-			}
+			syntax = {""}
 	)
 	public static void entitylist(CommandContext ctx)
 	{
-		if(ctx.contains("world"))
-			printWorldEntities(ctx, ctx.get("world").asWorld());
 		for(WorldServer world : ctx.getServer().getMultiWorld().getLoadedWorlds())
-			printWorldEntities(ctx, world);
-	}
-
-	private static void printWorldEntities(CommandContext ctx, WorldServer world)
-	{
-		for(Object o : world.loadedEntityList)
-			printEntityInfo(ctx, (Entity) o);
-	}
-
-	private static void printEntityInfo(CommandContext ctx, Entity ent)
-	{
-		ctx.sendMessage("[%s](%s, %s, %s) ID: %s, Class: %s, Entity: %s", ent.worldObj.provider.dimensionId, ent.posX, ent.posY, ent.posZ, ent.getEntityId(), ent.getClass(), ent);
+		{
+			for(Entity ent : GenericIterableFactory.newCastingIterable(world.loadedEntityList, Entity.class))
+			{
+				ctx.sendMessage("[%s](%s, %s, %s) ID: %s, Class: %s, Entity: %s", world.provider.dimensionId, ent.posX, ent.posY, ent.posZ, ent.getEntityId(), ent.getClass(), ent);
+			}
+		}
 	}
 	
 	@Command(
@@ -727,7 +803,6 @@ public class TechCommands
 				{
 					ent.attackEntityFrom(DamageSource.outOfWorld, 10000f);
 					ent.setDead();
-					break;
 				}
 			}
 		}

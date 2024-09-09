@@ -298,7 +298,7 @@ public class WorldDescriptor
 	
 	@SideOnly(Side.SERVER)
 	@SuppressWarnings("unchecked")
-	private void destroyWorld(boolean save)
+	public void destroyWorld(boolean save)
 	{
 		if(!getState().isLoaded())
 			return;
@@ -318,7 +318,7 @@ public class WorldDescriptor
 		
 		MinecraftForge.EVENT_BUS.post(new WorldEvent.Unload(world));
 		DimensionManager.setWorld(world.provider.dimensionId, null);
-		world.theChunkProviderServer.free();
+		world.theChunkProviderServer.loadedChunkHashMap.clear();
 		for(Object o : world.loadedTileEntityList)
 			((TileEntity)o).setWorldObj(null);
 		world.loadedTileEntityList.clear();

@@ -54,4 +54,8 @@ public class VanillaChunkHashMap extends LongHashMap
 	{
 		return chunkMap.remove(v2x(key), v2z(key));
 	}
+
+	public void clear(){
+		chunkMap.clear();
+	}
 }

@@ -323,23 +323,23 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
 			{
 				nbttagcompound1 = new NBTTagCompound();
 				nbttagcompound1.setByte("Y", (byte)(extendedblockstorage.getYLocation() >> 4 & 255));
-				nbttagcompound1.setByteArray("Blocks", extendedblockstorage.getSlot().copyLSB());
+				nbttagcompound1.setByteArray("Blocks", extendedblockstorage.getBlockLSBArray());
 
-				if (true/*extendedblockstorage.getBlockMSBArray() != null*/)
+				if (extendedblockstorage.getBlockMSBArray() != null)
 				{
-					nbttagcompound1.setByteArray("Add", extendedblockstorage.getSlot().copyMSB());
+					nbttagcompound1.setByteArray("Add", extendedblockstorage.getBlockMSBArray().data);
 				}
 
-				nbttagcompound1.setByteArray("Data", extendedblockstorage.getSlot().copyBlockMetadata());
-				nbttagcompound1.setByteArray("BlockLight", extendedblockstorage.getSlot().copyBlocklight());
+				nbttagcompound1.setByteArray("Data", extendedblockstorage.getMetadataArray().data);
+				nbttagcompound1.setByteArray("BlockLight", extendedblockstorage.getBlocklightArray().data);
 
 				if (flag)
 				{
-					nbttagcompound1.setByteArray("SkyLight", extendedblockstorage.getSlot().copySkylight());
+					nbttagcompound1.setByteArray("SkyLight", extendedblockstorage.getSkylightArray().data);
 				}
 				else
 				{
-					nbttagcompound1.setByteArray("SkyLight", new byte[2048]);
+					nbttagcompound1.setByteArray("SkyLight", new byte[extendedblockstorage.getBlocklightArray().data.length]);
 				}
 
 				nbttaglist.appendTag(nbttagcompound1);
@@ -443,28 +443,20 @@ public class AnvilChunkLoader implements IChunkLoader, IThreadedFileIO
 		{
 			NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(k);
 			byte b1 = nbttagcompound1.getByte("Y");
-			ExtendedBlockStorage extendedblockstorage = new ExtendedBlockStorage(b1 << 4, flag, false);
-			extendedblockstorage.getSlot().setLSB(nbttagcompound1.getByteArray("Blocks"));
+			ExtendedBlockStorage extendedblockstorage = new ExtendedBlockStorage(b1 << 4, flag);
+			extendedblockstorage.setBlockLSBArray(nbttagcompound1.getByteArray("Blocks"));
 
 			if (nbttagcompound1.hasKey("Add", 7))
 			{
-				extendedblockstorage.getSlot().setMSB(nbttagcompound1.getByteArray("Add"));
-			}
-			else
-			{
-				extendedblockstorage.getSlot().clearMSB();
+				extendedblockstorage.setBlockMSBArray(new NibbleArray(nbttagcompound1.getByteArray("Add"), 4));
 			}
 
-			extendedblockstorage.getSlot().setBlockMetadata(nbttagcompound1.getByteArray("Data"));
-			extendedblockstorage.getSlot().setBlocklight(nbttagcompound1.getByteArray("BlockLight"));
+			extendedblockstorage.setBlockMetadataArray(new NibbleArray(nbttagcompound1.getByteArray("Data"), 4));
+			extendedblockstorage.setBlocklightArray(new NibbleArray(nbttagcompound1.getByteArray("BlockLight"), 4));
 
 			if (flag)
 			{
-				extendedblockstorage.getSlot().setSkylight(nbttagcompound1.getByteArray("SkyLight"));
-			}
-			else
-			{
-				extendedblockstorage.getSlot().clearSkylight();
+				extendedblockstorage.setSkylightArray(new NibbleArray(nbttagcompound1.getByteArray("SkyLight"), 4));
 			}
 
 			extendedblockstorage.removeInvalidBlocks();

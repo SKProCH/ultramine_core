@@ -45,7 +45,6 @@ public class ChunkProviderClient implements IChunkProvider
 		if (!chunk.isEmpty())
 		{
 			chunk.onChunkUnload();
-			chunk.free();
 		}
 
 		this.chunkMapping.remove(ChunkCoordIntPair.chunkXZ2Int(p_73234_1_, p_73234_2_));
@@ -54,17 +53,8 @@ public class ChunkProviderClient implements IChunkProvider
 
 	public Chunk loadChunk(int p_73158_1_, int p_73158_2_)
 	{
-		long key = ChunkCoordIntPair.chunkXZ2Int(p_73158_1_, p_73158_2_);
-		Chunk old = (Chunk)chunkMapping.getValueByKey(key);
-		if(old != null)
-		{
-			old.onChunkUnload();
-			old.free();
-			chunkMapping.remove(key);
-			chunkListing.remove(old);
-		}
 		Chunk chunk = new Chunk(this.worldObj, p_73158_1_, p_73158_2_);
-		this.chunkMapping.add(key, chunk);
+		this.chunkMapping.add(ChunkCoordIntPair.chunkXZ2Int(p_73158_1_, p_73158_2_), chunk);
 		this.chunkListing.add(chunk);
 		net.minecraftforge.common.MinecraftForge.EVENT_BUS.post(new net.minecraftforge.event.world.ChunkEvent.Load(chunk));
 		chunk.isChunkLoaded = true;
@@ -131,11 +121,4 @@ public class ChunkProviderClient implements IChunkProvider
 	}
 
 	public void recreateStructures(int p_82695_1_, int p_82695_2_) {}
-	
-	public void free()
-	{
-		for(Object o : chunkListing)
-			((Chunk)o).free();
-		chunkListing.clear();
-	}
 }

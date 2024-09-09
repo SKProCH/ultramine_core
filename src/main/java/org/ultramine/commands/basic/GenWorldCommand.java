@@ -144,7 +144,7 @@ public class GenWorldCommand
 				MinecraftServer.getServer().getConfigurationManager().sendChatMsg(
 						new ChatComponentTranslation("command.genworld.process", getCurrentGen(), getTotalGen()));
 
-			while(canGenerateNow && iterator.hasNext() && world.theChunkProviderServer.unloadQueue.size() < 512)
+			while(canGenerateNow && iterator.hasNext() && world.theChunkProviderServer.chunksToUnload.size() < 512)
 			{
 				ChunkCoordIntPair coord = iterator.next();
 

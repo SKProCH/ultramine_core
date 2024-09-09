@@ -1,9 +1,5 @@
 package net.minecraft.world.chunk.storage;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.ultramine.server.chunk.OffHeapChunkStorage;
-
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
@@ -15,30 +11,48 @@ public class ExtendedBlockStorage
 	private int yBase;
 	private int blockRefCount;
 	private int tickRefCount;
-	private OffHeapChunkStorage.MemSlot slot;
+	private byte[] blockLSBArray;
+	private NibbleArray blockMSBArray;
+	private NibbleArray blockMetadataArray;
+	private NibbleArray blocklightArray;
+	private NibbleArray skylightArray;
 	private static final String __OBFID = "CL_00000375";
 
-	public ExtendedBlockStorage(int p_i1997_1_, boolean p_i1997_2_, boolean clear)
-	{
-		this.yBase = p_i1997_1_;
-		this.slot = OffHeapChunkStorage.instance().allocateSlot();
-		if(clear)
-			slot.clearAll();
-	}
-	
 	public ExtendedBlockStorage(int p_i1997_1_, boolean p_i1997_2_)
 	{
-		this(p_i1997_1_, p_i1997_2_, true);
+		this.yBase = p_i1997_1_;
+		this.blockLSBArray = new byte[4096];
+		this.blockMetadataArray = new NibbleArray(this.blockLSBArray.length, 4);
+		this.blocklightArray = new NibbleArray(this.blockLSBArray.length, 4);
+
+		if (p_i1997_2_)
+		{
+			this.skylightArray = new NibbleArray(this.blockLSBArray.length, 4);
+		}
 	}
 
 	public Block getBlockByExtId(int p_150819_1_, int p_150819_2_, int p_150819_3_)
 	{
-		return Block.getBlockById(slot.getBlockID(p_150819_1_, p_150819_2_, p_150819_3_));
+		int l = this.blockLSBArray[p_150819_2_ << 8 | p_150819_3_ << 4 | p_150819_1_] & 255;
+
+		if (this.blockMSBArray != null)
+		{
+			l |= this.blockMSBArray.get(p_150819_1_, p_150819_2_, p_150819_3_) << 8;
+		}
+
+		return Block.getBlockById(l);
 	}
 
 	public void func_150818_a(int p_150818_1_, int p_150818_2_, int p_150818_3_, Block p_150818_4_)
 	{
-		Block block1 = Block.getBlockById(slot.getBlockID(p_150818_1_, p_150818_2_, p_150818_3_));
+		int l = this.blockLSBArray[p_150818_2_ << 8 | p_150818_3_ << 4 | p_150818_1_] & 255;
+
+		if (this.blockMSBArray != null)
+		{
+			l |= this.blockMSBArray.get(p_150818_1_, p_150818_2_, p_150818_3_) << 8;
+		}
+
+		Block block1 = Block.getBlockById(l);
 
 		if (block1 != Blocks.air)
 		{
@@ -61,17 +75,31 @@ public class ExtendedBlockStorage
 		}
 
 		int i1 = Block.getIdFromBlock(p_150818_4_);
-		slot.setBlockID(p_150818_1_, p_150818_2_, p_150818_3_, i1);
+		this.blockLSBArray[p_150818_2_ << 8 | p_150818_3_ << 4 | p_150818_1_] = (byte)(i1 & 255);
+
+		if (i1 > 255)
+		{
+			if (this.blockMSBArray == null)
+			{
+				this.blockMSBArray = new NibbleArray(this.blockLSBArray.length, 4);
+			}
+
+			this.blockMSBArray.set(p_150818_1_, p_150818_2_, p_150818_3_, (i1 & 3840) >> 8);
+		}
+		else if (this.blockMSBArray != null)
+		{
+			this.blockMSBArray.set(p_150818_1_, p_150818_2_, p_150818_3_, 0);
+		}
 	}
 
 	public int getExtBlockMetadata(int p_76665_1_, int p_76665_2_, int p_76665_3_)
 	{
-		return slot.getMeta(p_76665_1_, p_76665_2_, p_76665_3_);
+		return this.blockMetadataArray.get(p_76665_1_, p_76665_2_, p_76665_3_);
 	}
 
 	public void setExtBlockMetadata(int p_76654_1_, int p_76654_2_, int p_76654_3_, int p_76654_4_)
 	{
-		slot.setMeta(p_76654_1_, p_76654_2_, p_76654_3_, p_76654_4_);
+		this.blockMetadataArray.set(p_76654_1_, p_76654_2_, p_76654_3_, p_76654_4_);
 	}
 
 	public boolean isEmpty()
@@ -91,22 +119,22 @@ public class ExtendedBlockStorage
 
 	public void setExtSkylightValue(int p_76657_1_, int p_76657_2_, int p_76657_3_, int p_76657_4_)
 	{
-		slot.setSkylight(p_76657_1_, p_76657_2_, p_76657_3_, p_76657_4_);
+		this.skylightArray.set(p_76657_1_, p_76657_2_, p_76657_3_, p_76657_4_);
 	}
 
 	public int getExtSkylightValue(int p_76670_1_, int p_76670_2_, int p_76670_3_)
 	{
-		return slot.getSkylight(p_76670_1_, p_76670_2_, p_76670_3_);
+		return this.skylightArray.get(p_76670_1_, p_76670_2_, p_76670_3_);
 	}
 
 	public void setExtBlocklightValue(int p_76677_1_, int p_76677_2_, int p_76677_3_, int p_76677_4_)
 	{
-		slot.setBlocklight(p_76677_1_, p_76677_2_, p_76677_3_, p_76677_4_);
+		this.blocklightArray.set(p_76677_1_, p_76677_2_, p_76677_3_, p_76677_4_);
 	}
 
 	public int getExtBlocklightValue(int p_76674_1_, int p_76674_2_, int p_76674_3_)
 	{
-		return slot.getBlocklight(p_76674_1_, p_76674_2_, p_76674_3_);
+		return this.blocklightArray.get(p_76674_1_, p_76674_2_, p_76674_3_);
 	}
 
 	public void removeInvalidBlocks()
@@ -136,123 +164,66 @@ public class ExtendedBlockStorage
 		}
 	}
 
-	@Deprecated
 	public byte[] getBlockLSBArray()
 	{
-		logDeprecation();
-		return slot.copyLSB();
+		return this.blockLSBArray;
 	}
 
 	@SideOnly(Side.CLIENT)
 	public void clearMSBArray()
 	{
-		slot.clearMSB();
+		this.blockMSBArray = null;
 	}
 
-	@Deprecated
 	public NibbleArray getBlockMSBArray()
 	{
-		logDeprecation();
-		return new NibbleArray(slot.copyMSB(), 4);
+		return this.blockMSBArray;
 	}
 
-	@Deprecated
 	public NibbleArray getMetadataArray()
 	{
-		logDeprecation();
-		return new NibbleArray(slot.copyBlockMetadata(), 4);
+		return this.blockMetadataArray;
 	}
 
-	@Deprecated
 	public NibbleArray getBlocklightArray()
 	{
-		logDeprecation();
-		return new NibbleArray(slot.copyBlocklight(), 4);
+		return this.blocklightArray;
 	}
 
-	@Deprecated
 	public NibbleArray getSkylightArray()
 	{
-		logDeprecation();
-		return new NibbleArray(slot.copySkylight(), 4);
+		return this.skylightArray;
 	}
 
-	@Deprecated
 	public void setBlockLSBArray(byte[] p_76664_1_)
 	{
-		logDeprecation();
-		slot.setLSB(p_76664_1_);
+		this.blockLSBArray = p_76664_1_;
 	}
 
-	@Deprecated
 	public void setBlockMSBArray(NibbleArray p_76673_1_)
 	{
-		logDeprecation();
-		slot.setMSB(p_76673_1_.data);
+		this.blockMSBArray = p_76673_1_;
 	}
 
-	@Deprecated
 	public void setBlockMetadataArray(NibbleArray p_76668_1_)
 	{
-		logDeprecation();
-		slot.setBlockMetadata(p_76668_1_.data);
+		this.blockMetadataArray = p_76668_1_;
 	}
 
-	@Deprecated
 	public void setBlocklightArray(NibbleArray p_76659_1_)
 	{
-		logDeprecation();
-		slot.setBlocklight(p_76659_1_.data);
+		this.blocklightArray = p_76659_1_;
 	}
 
-	@Deprecated
 	public void setSkylightArray(NibbleArray p_76666_1_)
 	{
-		logDeprecation();
-		slot.setSkylight(p_76666_1_.data);
+		this.skylightArray = p_76666_1_;
 	}
 
-	@Deprecated
 	@SideOnly(Side.CLIENT)
 	public NibbleArray createBlockMSBArray()
 	{
-		logDeprecation();
-		slot.clearMSB();
-		return getBlockMSBArray();
-	}
-
-	private static final Logger log = LogManager.getLogger();
-	
-	private static void logDeprecation()
-	{
-		log.warn("Called deprecated method in ExtendedBlockStorage. It may have no effect intended by the modder or lead to performance issues", new Throwable());
-	}
-	
-	public OffHeapChunkStorage.MemSlot getSlot()
-	{
-		return slot;
-	}
-	
-	public void free()
-	{
-		slot.free();
-		slot = null;
-	}
-	
-	@Override
-	protected void finalize()
-	{
-		try
-		{
-			if(slot != null)
-			{
-				slot.free();
-				slot = null;
-			}
-		}
-		catch(Throwable t)
-		{
-			t.printStackTrace();
-		}
+		this.blockMSBArray = new NibbleArray(this.blockLSBArray.length, 4);
+		return this.blockMSBArray;
 	}
 }
