@@ -60,7 +60,7 @@ public class ChunkProviderServer implements IChunkProvider
 	public IChunkLoader currentChunkLoader;
 	public boolean loadChunkOnProvideRequest = true;
 	public ChunkMap chunkMap = new ChunkMap();
-	public VanillaChunkHashMap loadedChunkHashMap = new VanillaChunkHashMap(chunkMap); //mods compatibility
+	public LongHashMap loadedChunkHashMap = new VanillaChunkHashMap(chunkMap); //mods compatibility
 	public WorldServer worldObj;
 	public List loadedChunks = new AbstractList() //mods compatibility
 	{
