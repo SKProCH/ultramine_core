@@ -21,3 +21,30 @@ Currently you need to do 2 things:
       }
     }
     ```
+### Running on modern Java 21
+
+Seems like ultramine can be run on java 21 without any modifications (at least on my private server it runs fine).
+
+Here is how to do it:
+1. You need to get `lwjgl3fy-forgePatches` compatible with ultramine
+      - Here is compiled version of lwjgl3fy 2.1.4: https://github.com/SKProCH/ultramine_core/releases/download/v0.4/lwjgl3ify-2.1.4-master+ea93d147db-dirty-forgePatches.jar
+      - Or you can compile it by yourself from [here](https://github.com/GTNewHorizons/lwjgl3ify/)  
+        You need to edit `build.gradle.kts` and change `libraryList`
+        ```
+            manifest {
+            val libraryList = listOf(
+        ```
+        It should include all the libraries from the `libraries` folder, and `"forge-1.7.10-10.13.4.1614-1.7.10-universal.jar", "minecraft_server.1.7.10.jar"` should be replaced to ultramine jar name, like `"ultramine_core-server.jar"`.  
+        [Here](https://gist.github.com/SKProCH/b44d24d37b6d07c04d1cd49abf3239dd#file-build-gradle-kts-L164-L229) is the example for current repo.  
+        After that use `forgePatchesJar` target.
+2. Rename ultramine server core jar to `"ultramine_core-server.jar"` (or whatever name you included to libraryList if you are compiled lwjgl3fy by yourself)
+3. Rename `forgePatches` files to `lwjgl3ify-forgePatches.jar`
+4. Create a file named `java9args.txt` with the contents of [the file in this repository](https://github.com/GTNewHorizons/lwjgl3ify/blob/master/java9args.txt).
+5. You can now launch the server with a command like the following, assuming the first java executable on your PATH is java 11/17/newer:
+  ```shell
+      java -Xmx6G -Xms6G @java9args.txt -jar lwjgl3ify-forgePatches.jar nogui
+  ```
+
+> [!IMPORTANT]  
+> Make sure what you downloaded mods for 17-21 java (not the 8 like you do before!).  
+> Make sure what you fixed `archaicfix` and `coretweaks` as stated on top.
