@@ -28,14 +28,50 @@ repositories {
 		name 'forge'
 		url 'https://files.minecraftforge.net/maven'
 	}
+	maven {
+		name 'minecraftforge'
+		url 'https://maven.minecraftforge.net/'
+	}
 	mavenCentral()
 	maven {
 		name 'sonatypeSnapshot'
 		url 'https://oss.sonatype.org/content/repositories/snapshots/'
 	}
 	maven {
+		name 'sonatype'
+		url 'https://central.sonatype.com/'
+	}
+	maven {
 		name 'minecraft'
 		url 'https://libraries.minecraft.net/'
+	}
+	maven {
+		name 'maven2'
+		url 'https://repo.maven.apache.org/maven2/'
+	}
+	maven {
+		name 'apache'
+		url 'https://maven.apache.org/'
+	}
+	maven {
+		name 'mvnrepository'
+		url 'https://mvnrepository.com/'
+	}
+	maven {
+		name 'koloboke-api-jdk8'
+		url 'https://mvnrepository.com/artifact/com.koloboke/koloboke-api-jdk8'
+	}
+	maven {
+		name 'koloboke-impl-jdk8'
+		url 'https://mvnrepository.com/artifact/com.koloboke/koloboke-impl-jdk8'
+	}
+	maven {
+		name 'log4j-api'
+		url 'https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api'
+	}
+	maven {
+		name 'log4j-core'
+		url 'https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core'
 	}
 }
 
@@ -55,58 +91,59 @@ configurations {
 }
 
 dependencies {
-	compileCommon 'net.minecraft:launchwrapper:1.11'
-	compileCommon 'com.google.code.findbugs:jsr305:1.3.9'
+	compileCommon 'net.minecraft:launchwrapper:1.12'
+	compileCommon 'net.sf.trove4j:trove4j:3.0.3'
+	compileCommon 'net.sf.jopt-simple:jopt-simple:5.0.1'
 	compileCommon 'org.ow2.asm:asm-debug-all:5.0.3'
-	compileCommon 'com.typesafe.akka:akka-actor_2.11:2.3.3'
-	compileCommon 'com.typesafe:config:1.2.1'
 	compileCommon 'org.scala-lang:scala-actors-migration_2.11:1.1.0'
-	compileCommon 'org.scala-lang:scala-compiler:2.11.1'
+	compileCommon 'org.scala-lang:scala-compiler:2.11.7'
 	compileCommon 'org.scala-lang.plugins:scala-continuations-library_2.11:1.0.2'
 	compileCommon 'org.scala-lang.plugins:scala-continuations-plugin_2.11.1:1.0.2'
-	compileCommon 'org.scala-lang:scala-library:2.11.1'
+	compileCommon 'org.scala-lang:scala-library:2.11.7'
 	compileCommon 'org.scala-lang:scala-parser-combinators:2.11.0-M4'
-	compileCommon 'org.scala-lang:scala-reflect:2.11.1'
-	compileCommon 'org.scala-lang:scala-swing:2.11.0-M4'
+	compileCommon 'org.scala-lang:scala-reflect:2.11.7'
+	compileCommon 'org.scala-lang:scala-swing:2.11.0-M7'
 	compileCommon 'org.scala-lang:scala-xml:2.11.0-M4'
-	compileCommon 'net.sf.jopt-simple:jopt-simple:4.5'
-	compileCommon 'lzma:lzma:0.0.1'
-	compileClient 'com.mojang:realms:1.3.5'
-	compileCommon 'org.apache.commons:commons-compress:1.8.1'
-	compileCommon 'org.apache.httpcomponents:httpclient:4.3.3'
-	compileCommon 'commons-logging:commons-logging:1.1.3'
+	compileCommon 'org.apache.commons:commons-dbcp2:2.1.1'
+	compileCommon 'org.apache.commons:commons-compress:1.21'
+	compileCommon 'org.apache.commons:commons-lang3:3.12.0'
 	compileCommon 'org.apache.httpcomponents:httpcore:4.3.2'
+	compileCommon 'org.apache.httpcomponents:httpclient:4.4.1'
+	compileCommon 'org.apache.logging.log4j:log4j-api:2.0-beta9'
+	compileCommon 'org.apache.logging.log4j:log4j-core:2.0-beta9'
+	compileCommon 'commons-logging:commons-logging:1.1.3'
+	compileCommon 'commons-io:commons-io:2.4'
+	compileCommon 'commons-codec:commons-codec:1.9'
 	compileCommon 'java3d:vecmath:1.3.1'
-	compileCommon 'net.sf.trove4j:trove4j:3.0.3'
+	compileCommon 'io.netty:netty-all:4.0.10.Final'
+	compileCommon 'org.yaml:snakeyaml:1.16'
+	compileCommon 'lzma:lzma:0.0.1'
+	compileCommon 'com.google.code.findbugs:jsr305:1.3.9'
+	compileCommon 'com.google.guava:guava:17.0'
+	compileCommon 'com.google.code.gson:gson:2.2.4'
+	compileCommon 'com.typesafe.akka:akka-actor_2.11:2.3.3'
+	compileCommon 'com.typesafe:config:1.2.1'
 	compileCommon 'com.ibm.icu:icu4j-core-mojang:51.2'
+	compileCommon 'com.lmax:disruptor:3.2.1'
+	compileCommon 'com.koloboke:koloboke-api-jdk8:1.0.0'
+	compileCommon 'com.mojang:authlib:1.5.21'
+
+	compileClient 'com.mojang:realms:1.3.5'
 	compileClient 'com.paulscode:codecjorbis:20101023'
 	compileClient 'com.paulscode:codecwav:20101023'
 	compileClient 'com.paulscode:libraryjavasound:20101123'
 	compileClient 'com.paulscode:librarylwjglopenal:20100824'
 	compileClient 'com.paulscode:soundsystem:20120107'
-	compileCommon 'io.netty:netty-all:4.0.10.Final'
-	compileCommon 'com.google.guava:guava:17.0'
-	compileCommon 'org.apache.commons:commons-lang3:3.3.2'
-	compileCommon 'commons-io:commons-io:2.4'
-	compileCommon 'commons-codec:commons-codec:1.9'
 	compileClient 'net.java.jinput:jinput:2.0.5'
 	compileClient 'net.java.jutils:jutils:1.0.0'
-	compileCommon 'com.google.code.gson:gson:2.2.4'
-	compileCommon 'com.mojang:authlib:1.5.16'
-	compileCommon 'org.apache.logging.log4j:log4j-api:2.0-beta9'
-	compileCommon 'org.apache.logging.log4j:log4j-core:2.0-beta9'
 	compileClient 'org.lwjgl.lwjgl:lwjgl:2.9.1'
 	compileClient 'org.lwjgl.lwjgl:lwjgl_util:2.9.1'
 	compileClient 'tv.twitch:twitch:5.16'
 
-	compileCommon 'org.yaml:snakeyaml:1.16'
-	compileCommon 'com.lmax:disruptor:3.2.1'
-	compileCommon 'org.apache.commons:commons-dbcp2:2.1.1'
-	compileCommon 'net.openhft:koloboke-api-jdk8:0.6.8'
 	compileServer 'jline:jline:2.13', {transitive = false}
 
-	runtimeCommon 'net.openhft:koloboke-impl-jdk8:0.6.8'
-	runtimeServer 'mysql:mysql-connector-java:5.1.31'
+	runtimeCommon 'com.koloboke:koloboke-impl-jdk8:1.0.0'
+	runtimeServer 'mysql:mysql-connector-java:8.0.33'
 }
 
 task injectVersion(type: SpeicialClassTransformTask) {
@@ -155,7 +192,7 @@ task jar_server(type: Jar) {
 		attributes(
 			'Main-Class': 'cpw.mods.fml.relauncher.ServerLaunchWrapper',
 			'TweakClass': 'cpw.mods.fml.common.launcher.FMLTweaker',
-			'Class-Path': configurations.packageServer.collect { 'libraries/' + it.getName() }.join(' ')
+			'Class-Path': generateClasspath()
 		)
 	}
 }
@@ -179,6 +216,17 @@ jar {
 task jar_source(type: Jar) {
 	from sourceSets.main.allSource
 	classifier = 'sources'
+}
+
+task dumpLibs(type: Copy) {
+  into "$buildDir/libs/libraries"
+
+    configurations.runtime.resolvedConfiguration.resolvedArtifacts.collect {
+        def moduleVersion = it.moduleVersion
+        from (it.file) {
+            into ("${moduleVersion.id.group.replace('.', '/')}/${moduleVersion.id.name}/${moduleVersion.id.version}/")
+        }
+    }
 }
 
 task storeLastRevision {
@@ -242,11 +290,6 @@ tasks.publish.dependsOn changelog
 //			}
 //	}
 //}
-
-task dumpLibs(type: Copy) {
-	into "$buildDir/libs/libraries"
-	from configurations.runtime
-}
 
 String getGitDesc() {
 	def stdout = new ByteArrayOutputStream()
@@ -329,4 +372,13 @@ void doGenerateChangelog(File file) {
 		}
 	}
 	writer.close();
+}
+
+def generateClasspath() {
+    def classpath = ''
+    configurations.packageServer.resolvedConfiguration.resolvedArtifacts.collect { it.moduleVersion.id }.each {
+        def jar = "${it.group.replace('.', '/')}/${it.name}/${it.version}/${it.name}-${it.version}.jar"
+        classpath += " ${'libraries/'}${jar}"
+    }
+    return classpath.trim()
 }

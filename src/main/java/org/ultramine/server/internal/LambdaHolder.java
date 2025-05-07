@@ -2,8 +2,8 @@ package org.ultramine.server.internal;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
-import net.openhft.koloboke.collect.map.ShortObjMap;
-import net.openhft.koloboke.collect.map.hash.HashShortObjMaps;
+import com.koloboke.collect.map.ShortObjMap;
+import com.koloboke.collect.map.hash.HashShortObjMaps;
 import org.ultramine.server.util.CachedEntry;
 
 import java.util.TreeSet;

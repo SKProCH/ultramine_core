@@ -12,8 +12,8 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.openhft.koloboke.collect.map.IntObjMap;
-import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
+import com.koloboke.collect.map.IntObjMap;
+import com.koloboke.collect.map.hash.HashIntObjMaps;
 import org.ultramine.server.internal.UMInternalRegistry;
 
 public class ItemStackHashMap<V> implements Map<ItemStack, V>, UMInternalRegistry.IRemapHandler

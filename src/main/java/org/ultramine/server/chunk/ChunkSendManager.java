@@ -35,9 +35,9 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ChunkWatchEvent;
-import net.openhft.koloboke.collect.IntCursor;
-import net.openhft.koloboke.collect.set.IntSet;
-import net.openhft.koloboke.collect.set.hash.HashIntSets;
+import com.koloboke.collect.IntCursor;
+import com.koloboke.collect.set.IntSet;
+import com.koloboke.collect.set.hash.HashIntSets;
 
 public class ChunkSendManager
 {

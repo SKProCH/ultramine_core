@@ -42,8 +42,8 @@ import net.minecraft.world.gen.ChunkProviderServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.world.ChunkEvent;
-import net.openhft.koloboke.collect.map.ShortObjMap;
-import net.openhft.koloboke.collect.map.hash.HashShortObjMaps;
+import com.koloboke.collect.map.ShortObjMap;
+import com.koloboke.collect.map.hash.HashShortObjMaps;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

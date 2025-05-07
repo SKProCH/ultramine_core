@@ -88,8 +88,8 @@ import net.minecraftforge.common.WorldSpecificSaveHandler;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.openhft.koloboke.collect.map.IntByteMap;
-import net.openhft.koloboke.collect.map.hash.HashIntByteMaps;
+import com.koloboke.collect.map.IntByteMap;
+import com.koloboke.collect.map.hash.HashIntByteMaps;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
 import net.minecraft.entity.EnumCreatureType;
 

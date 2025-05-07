@@ -12,7 +12,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
-import net.openhft.koloboke.collect.map.IntByteMap;
+import com.koloboke.collect.map.IntByteMap;
 
 public class ServerLoadBalancer
 {

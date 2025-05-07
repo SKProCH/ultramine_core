@@ -22,7 +22,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraft.world.biome.BiomeGenBase.SpawnListEntry;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.openhft.koloboke.collect.map.IntByteCursor;
+import com.koloboke.collect.map.IntByteCursor;
 
 @SideOnly(Side.SERVER)
 public abstract class MobSpawner
