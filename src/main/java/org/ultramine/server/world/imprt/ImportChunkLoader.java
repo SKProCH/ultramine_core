@@ -14,8 +14,8 @@ import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.storage.AnvilChunkLoader;
 import net.minecraft.world.chunk.storage.RegionFile;
 import net.minecraft.world.storage.ThreadedFileIOBase;
-import net.openhft.koloboke.collect.map.IntObjMap;
-import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
+import com.koloboke.collect.map.IntObjMap;
+import com.koloboke.collect.map.hash.HashIntObjMaps;
 
 public abstract class ImportChunkLoader extends AnvilChunkLoader
 {

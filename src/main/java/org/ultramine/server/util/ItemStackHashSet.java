@@ -13,8 +13,8 @@ import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
-import net.openhft.koloboke.collect.set.IntSet;
-import net.openhft.koloboke.collect.set.hash.HashIntSets;
+import com.koloboke.collect.set.IntSet;
+import com.koloboke.collect.set.hash.HashIntSets;
 import org.ultramine.server.internal.UMInternalRegistry;
 
 public class ItemStackHashSet implements Set<ItemStack>, UMInternalRegistry.IRemapHandler

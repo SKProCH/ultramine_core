@@ -1,7 +1,7 @@
 package net.minecraft.util;
 
-import net.openhft.koloboke.collect.map.LongObjMap;
-import net.openhft.koloboke.collect.map.hash.HashLongObjMaps;
+import com.koloboke.collect.map.LongObjMap;
+import com.koloboke.collect.map.hash.HashLongObjMaps;
 
 public class LongHashMap
 {

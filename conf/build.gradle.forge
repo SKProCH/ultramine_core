@@ -4,68 +4,100 @@ apply plugin: 'eclipse'
 sourceCompatibility = '1.6'
 targetCompatibility = '1.6'
 
-repositories
-{
-    maven
-    {
-        name 'forge'
-        url 'http://files.minecraftforge.net/maven'
-    }
-    mavenCentral()
-    maven
-    {
-        name 'sonatypeSnapshot'
-        url 'https://oss.sonatype.org/content/repositories/snapshots/'
-    }
-    maven
-    {
-        name 'minecraft'
-        url 'https://libraries.minecraft.net/'
-    }
+repositories {
+	maven {
+		name 'forge'
+		url 'https://files.minecraftforge.net/maven'
+	}
+	maven {
+		name 'minecraftforge'
+		url 'https://maven.minecraftforge.net/'
+	}
+	mavenCentral()
+	maven {
+		name 'sonatypeSnapshot'
+		url 'https://oss.sonatype.org/content/repositories/snapshots/'
+	}
+	maven {
+		name 'sonatype'
+		url 'https://central.sonatype.com/'
+	}
+	maven {
+		name 'minecraft'
+		url 'https://libraries.minecraft.net/'
+	}
+	maven {
+		name 'maven2'
+		url 'https://repo.maven.apache.org/maven2/'
+	}
+	maven {
+		name 'apache'
+		url 'https://maven.apache.org/'
+	}
+	maven {
+		name 'mvnrepository'
+		url 'https://mvnrepository.com/'
+	}
+	maven {
+		name 'koloboke-api-jdk8'
+		url 'https://mvnrepository.com/artifact/com.koloboke/koloboke-api-jdk8'
+	}
+	maven {
+		name 'koloboke-impl-jdk8'
+		url 'https://mvnrepository.com/artifact/com.koloboke/koloboke-impl-jdk8'
+	}
+	maven {
+		name 'log4j-api'
+		url 'https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api'
+	}
+	maven {
+		name 'log4j-core'
+		url 'https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core'
+	}
 }
 
 dependencies
 {
     compile 'net.minecraft:launchwrapper:1.12'
-    compile 'com.google.code.findbugs:jsr305:1.3.9'
+    compile 'net.sf.trove4j:trove4j:3.0.3'
+    compile 'net.sf.jopt-simple:jopt-simple:5.0.1'
     compile 'org.ow2.asm:asm-debug-all:5.0.3'
-    compile 'com.typesafe.akka:akka-actor_2.11:2.3.3'
-    compile 'com.typesafe:config:1.2.1'
     compile 'org.scala-lang:scala-actors-migration_2.11:1.1.0'
-    compile 'org.scala-lang:scala-compiler:2.11.1'
+    compile 'org.scala-lang:scala-compiler:2.11.7'
     compile 'org.scala-lang.plugins:scala-continuations-library_2.11:1.0.2'
     compile 'org.scala-lang.plugins:scala-continuations-plugin_2.11.1:1.0.2'
-    compile 'org.scala-lang:scala-library:2.11.1'
+    compile 'org.scala-lang:scala-library:2.11.7'
     compile 'org.scala-lang:scala-parser-combinators_2.11:1.0.1'
-    compile 'org.scala-lang:scala-reflect:2.11.1'
+    compile 'org.scala-lang:scala-reflect:2.11.7'
     compile 'org.scala-lang:scala-swing_2.11:1.0.1'
     compile 'org.scala-lang:scala-xml_2.11:1.0.2'
-    compile 'net.sf.jopt-simple:jopt-simple:4.5'
-    compile 'lzma:lzma:0.0.1'
-    compile 'com.mojang:realms:1.3.5'
-    compile 'org.apache.commons:commons-compress:1.8.1'
-    compile 'org.apache.httpcomponents:httpclient:4.3.3'
-    compile 'commons-logging:commons-logging:1.1.3'
+    compile 'org.apache.commons:commons-compress:1.21'
+    compile 'org.apache.commons:commons-lang3:3.12.0'
     compile 'org.apache.httpcomponents:httpcore:4.3.2'
+    compile 'org.apache.httpcomponents:httpclient:4.4.1'
+	compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
+	compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
+    compile 'commons-logging:commons-logging:1.1.3'
+    compile 'commons-io:commons-io:2.4'
+    compile 'commons-codec:commons-codec:1.9'
     compile 'java3d:vecmath:1.3.1'
-    compile 'net.sf.trove4j:trove4j:3.0.3'
+    compile 'io.netty:netty-all:4.0.10.Final'
+    compile 'lzma:lzma:0.0.1'
+    compile 'com.google.code.findbugs:jsr305:1.3.9'
+    compile 'com.google.guava:guava:17.0'
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile 'com.typesafe.akka:akka-actor_2.11:2.3.3'
+    compile 'com.typesafe:config:1.2.1'
     compile 'com.ibm.icu:icu4j-core-mojang:51.2'
+    compile 'com.mojang:authlib:1.5.21'
+    compile 'com.mojang:realms:1.3.5'
     compile 'com.paulscode:codecjorbis:20101023'
     compile 'com.paulscode:codecwav:20101023'
     compile 'com.paulscode:libraryjavasound:20101123'
     compile 'com.paulscode:librarylwjglopenal:20100824'
     compile 'com.paulscode:soundsystem:20120107'
-    compile 'io.netty:netty-all:4.0.10.Final'
-    compile 'com.google.guava:guava:17.0'
-    compile 'org.apache.commons:commons-lang3:3.3.2'
-    compile 'commons-io:commons-io:2.4'
-    compile 'commons-codec:commons-codec:1.9'
     compile 'net.java.jinput:jinput:2.0.5'
     compile 'net.java.jutils:jutils:1.0.0'
-    compile 'com.google.code.gson:gson:2.2.4'
-    compile 'com.mojang:authlib:1.5.16'
-    compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
-    compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
     compile 'org.lwjgl.lwjgl:lwjgl:2.9.1'
     compile 'org.lwjgl.lwjgl:lwjgl_util:2.9.1'
     compile 'tv.twitch:twitch:5.16'

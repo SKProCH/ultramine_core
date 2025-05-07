@@ -25,9 +25,9 @@ import net.minecraft.world.storage.IThreadedFileIO;
 import net.minecraft.world.storage.ThreadedFileIOBase;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ChunkDataEvent;
-import net.openhft.koloboke.collect.map.IntObjCursor;
-import net.openhft.koloboke.collect.map.IntObjMap;
-import net.openhft.koloboke.collect.map.hash.HashIntObjMaps;
+import com.koloboke.collect.map.IntObjCursor;
+import com.koloboke.collect.map.IntObjMap;
+import com.koloboke.collect.map.hash.HashIntObjMaps;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;

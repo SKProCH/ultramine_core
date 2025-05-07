@@ -35,10 +35,10 @@ import net.minecraftforge.common.ForgeChunkManager;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.chunkio.ChunkIOExecutor;
 import net.minecraftforge.event.world.ChunkDataEvent;
-import net.openhft.koloboke.collect.IntCursor;
-import net.openhft.koloboke.collect.map.IntObjCursor;
-import net.openhft.koloboke.collect.set.IntSet;
-import net.openhft.koloboke.collect.set.hash.HashIntSets;
+import com.koloboke.collect.IntCursor;
+import com.koloboke.collect.map.IntObjCursor;
+import com.koloboke.collect.set.IntSet;
+import com.koloboke.collect.set.hash.HashIntSets;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -39,9 +39,9 @@ import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.storage.SaveHandlerMP;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
-import net.openhft.koloboke.collect.IntCursor;
-import net.openhft.koloboke.collect.set.hash.HashIntSet;
-import net.openhft.koloboke.collect.set.hash.HashIntSets;
+import com.koloboke.collect.IntCursor;
+import com.koloboke.collect.set.hash.HashIntSet;
+import com.koloboke.collect.set.hash.HashIntSets;
 
 @SideOnly(Side.CLIENT)
 public class WorldClient extends World
