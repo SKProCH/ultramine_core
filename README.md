@@ -27,7 +27,7 @@ Seems like ultramine can be run on java 21 without any modifications (at least o
 
 Here is how to do it:
 1. You need to get `lwjgl3fy-forgePatches` compatible with ultramine
-      - Here is compiled version of lwjgl3fy 2.1.4: https://github.com/SKProCH/ultramine_core/releases/download/v0.4/lwjgl3ify-2.1.4-master+ea93d147db-dirty-forgePatches.jar
+      - Here is prebuild version of lwjgl3fy 2.1.4: https://github.com/SKProCH/ultramine_core/releases/download/v0.4/lwjgl3ify-2.1.4-master+ea93d147db-dirty-forgePatches.jar
       - Or you can compile it by yourself from [here](https://github.com/GTNewHorizons/lwjgl3ify/)  
         You need to edit `build.gradle.kts` and change `libraryList`
         ```
@@ -39,12 +39,15 @@ Here is how to do it:
         After that use `forgePatchesJar` target.
 2. Rename ultramine server core jar to `"ultramine_core-server.jar"` (or whatever name you included to libraryList if you are compiled lwjgl3fy by yourself)
 3. Rename `forgePatches` files to `lwjgl3ify-forgePatches.jar`
-4. Create a file named `java9args.txt` with the contents of [the file in this repository](https://github.com/GTNewHorizons/lwjgl3ify/blob/master/java9args.txt).
-5. You can now launch the server with a command like the following, assuming the first java executable on your PATH is java 11/17/newer:
+4. Create a file named `java9args.txt` with the contents of
+      - [This file](https://github.com/GTNewHorizons/lwjgl3ify/blob/0fb6470e31bf13d76109cc4e2dc6239478bd69e4/java9args.txt) if you are using prebuild lwjgl3fy 2.1.4 from my releases
+      - Or [this file](https://github.com/GTNewHorizons/lwjgl3ify/blob/master/java9args.txt) if you compile it by yourself from sources
+5. You can now launch the server with a command like the following, assuming the first java executable on your PATH is java 11/17/21/22:
   ```shell
       java -Xmx6G -Xms6G @java9args.txt -jar lwjgl3ify-forgePatches.jar nogui
   ```
 
 > [!IMPORTANT]  
-> Make sure what you downloaded mods for 17-21 java (not the 8 like you do before!).  
-> Make sure what you fixed `archaicfix` and `coretweaks` as stated on top.
+> Make sure what you downloaded mods for 17-22 java (not the 8 like you do before!).  
+> Make sure what you fixed `archaicfix` and `coretweaks` as stated on top.  
+> If you are using if without full GT:NH modpack, make sure that you also put `gtnhlib`,  `hodgepodge`, `lwjgl3ify` (same jar as you compiled/downloaded above) and `unimixins` in you `mods` folder.
