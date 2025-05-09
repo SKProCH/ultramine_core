@@ -99,6 +99,14 @@ public class InventoryCrafting implements IInventory
 		}
 	}
 
+	/// This is required to overcome this [fix](https://github.com/GTNewHorizons/Hodgepodge/pull/463)
+    public void propagateCraftMatrixChange(){
+		this.eventHandler.onCraftMatrixChanged(this);
+	}
+
+	// This will be ignored in GTNH because of this fix: https://github.com/GTNewHorizons/Hodgepodge/pull/463
+	// So optimization from vlad with InventoryCrafting.callMatrixChanged and this fix leads
+	// to be unable crafting more than one without resetting crafting grid by hands
 	public void setInventorySlotContents(int p_70299_1_, ItemStack p_70299_2_)
 	{
 		this.stackList[p_70299_1_] = p_70299_2_;

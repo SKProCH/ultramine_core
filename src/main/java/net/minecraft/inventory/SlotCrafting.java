@@ -143,6 +143,17 @@ public class SlotCrafting extends Slot
 			}
 		}
 		InventoryCrafting.callMatrixChanged = true;
+
+		// This will be ignored in GTNH because of this fix: https://github.com/GTNewHorizons/Hodgepodge/pull/463
+		// So optimization from vlad with InventoryCrafting.callMatrixChanged and this fix leads
+		// to be unable crafting more than one without resetting crafting grid by hands
+		// Since server side wouldn't push the new "preview crafting" stack in InventoryCraftResult
+		// and player can't crab this nonexistent stack to actually craft item
 		craftMatrix.setInventorySlotContents(0, craftMatrix.getStackInSlot(0));
+
+		if (craftMatrix instanceof InventoryCrafting) {
+			// So we're creating a new method to directly call craftMatrix.eventHandler.onCraftMatrixChanged(this);
+			((InventoryCrafting)craftMatrix).propagateCraftMatrixChange();
+		}
 	}
 }
