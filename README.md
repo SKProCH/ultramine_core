@@ -21,9 +21,9 @@ Currently you need to do 2 things:
       }
     }
     ```
-### Running on modern Java 21
+### Running on modern Java (11/17/21/22)
 
-Seems like ultramine can be run on java 21 without any modifications (at least on my private server it runs fine).
+Seems like ultramine can be run on modern java without any modifications (at least on my private server it runs fine).
 
 Here is how to do it:
 1. You need to get `lwjgl3fy-forgePatches` compatible with ultramine
@@ -47,7 +47,8 @@ Here is how to do it:
       java -Xmx6G -Xms6G @java9args.txt -jar lwjgl3ify-forgePatches.jar nogui
   ```
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
+> Make sure what you launching with modern 17-22 java (not the 8 like you do before!).  
 > Make sure what you downloaded mods for 17-22 java (not the 8 like you do before!).  
 > Make sure what you fixed `archaicfix` and `coretweaks` as stated on top.  
 > If you are using if without full GT:NH modpack, make sure that you also put `gtnhlib`,  `hodgepodge`, `lwjgl3ify` (same jar as you compiled/downloaded above) and `unimixins` in you `mods` folder.
