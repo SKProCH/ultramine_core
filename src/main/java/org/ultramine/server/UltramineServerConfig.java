@@ -113,6 +113,7 @@ public class UltramineServerConfig
 		public static class SecurityConf
 		{
 			public boolean allowFlight = false;
+			public boolean allowFastMove = false;
 			public boolean checkBreakSpeed = true;
 		}
 	}

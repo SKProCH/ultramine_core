@@ -121,6 +121,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IPlay
 	private boolean canSpawnNPCs;
 	private boolean pvpEnabled;
 	private boolean allowFlight;
+	private boolean allowFastMove;
 	private String motd;
 	private int buildLimit;
 	private int field_143008_E = 0;
@@ -1117,6 +1118,16 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IPlay
 	public void setAllowFlight(boolean p_71245_1_)
 	{
 		this.allowFlight = p_71245_1_;
+	}
+
+	public boolean isFastMoveAllowed()
+	{
+		return this.allowFastMove;
+	}
+
+	public void setFastMoveFlight(boolean allowFastMove)
+	{
+		this.allowFastMove = allowFastMove;
 	}
 
 	public abstract boolean isCommandBlockEnabled();
