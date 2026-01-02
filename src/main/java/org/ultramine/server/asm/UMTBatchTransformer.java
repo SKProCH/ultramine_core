@@ -49,12 +49,10 @@ public class UMTBatchTransformer implements IClassTransformer
 		for(IUMClassTransformer transformer : globalTransformers)
 			flags |= transformer.transform(name, transformedName, classReader, classNode).ordinal();
 
-		// Computing frames even if we did not changed class to fix other mod changes of 1.7 & 1.8 classes
-		boolean shouldComputeFrames = (classNode.version & 0xFFFF) > Opcodes.V1_6;
-		if(flags == 0 && !shouldComputeFrames)
+		if(flags == 0)
 			return basicClass;
 
-		ClassWriter writer = shouldComputeFrames ? new ComputeFramesClassWriter() : new ClassWriter(flags == 1 ? 0 : 1);
+		ClassWriter writer = new ClassWriter(flags == 1 ? 0 : 1);
 		classNode.accept(writer);
 		return writer.toByteArray();
 	}
